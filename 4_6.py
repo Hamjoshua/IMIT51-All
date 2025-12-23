@@ -15,53 +15,58 @@ SMALL_FIX_AVG = 10
 FULL_FIX_AVG = 15
 
 
-def simulate_one_robot() -> tuple[float, int]:
-    time_score = 0.0
+def simulate_one_robot() -> tuple[float, float, int]:
+    review_time_score = 0.0
+    fix_time_score = 0.0
     replaced_comps = 0
 
     # 1. Осмотр всех компонентов
     for i in range(COMPONENTS_COUNT):       
         review_time = np.random.uniform(MIN_REVIEW_TIME, MAX_REVIEW_TIME)
-        time_score += review_time
+        review_time_score += review_time
 
         is_error_p = random.random() < ERROR_P
 
         if(is_error_p):
             replace_time = np.random.normal(REPLACE_TIME_AVG,
                                              REPLACE_TIME_DEVIATION)
-            time_score += replace_time
+            review_time_score += replace_time
             replaced_comps += 1
 
     # 2. Наладка
     if replaced_comps == 0:
         # мелкая наладка
-        time_score += np.random.exponential(scale=SMALL_FIX_AVG)    
+        fix_time_score += np.random.exponential(scale=SMALL_FIX_AVG)    
     else:
         # полная наладка
-        time_score += np.random.exponential(scale=FULL_FIX_AVG)    
+        fix_time_score += np.random.exponential(scale=FULL_FIX_AVG)    
 
-    return time_score, replaced_comps
+    return review_time_score, fix_time_score, replaced_comps
 
 
 def check_for(n_robots, seed=228):
     rng = np.random.default_rng(seed)
 
-    times = np.empty(n_robots, dtype=float)
+    review_times = np.empty(n_robots, dtype=float)
+    fix_times = np.empty(n_robots, dtype=float)
     full_flags = np.empty(n_robots, dtype=bool)
     replaced_counts = np.empty(n_robots, dtype=int)
 
     for i in range(n_robots):
-        time, comps = simulate_one_robot()
-        times[i] = time
+        revtime, fixtime, comps = simulate_one_robot()
+        review_times[i] = revtime
+        fix_times[i] = fixtime
         full_flags[i] = comps > 0       
         replaced_counts[i] = comps
 
-    avg_time = times.mean()
+    avg_fixtime = fix_times.mean()
+    avg_revtime = review_times.mean()
     percent_full = full_flags.mean() * 100.0
     avg_replaced = replaced_counts.mean()
 
     print(f"--- Результаты за {n_robots} роботов ---")
-    print(f"Среднее время ремонта одного робота: {avg_time:.2f} мин")
+    print(f"Среднее время ремонта одного робота: {avg_revtime:.2f} мин")
+    print(f"Среднее время наладки одного робота: {avg_fixtime:.2f} мин")
     print(f"Процент случаев полной наладки: {percent_full:.2f} %")
     print(f"Среднее количество заменённых компонентов: {avg_replaced:.3f}")    
     print()
