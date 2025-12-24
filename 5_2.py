@@ -98,6 +98,16 @@ def graph():
     plt.tight_layout()
     plt.show()
 
+    # 3. Обычный поток вагонов
+    plt.figure(figsize=(10, 4))
+    plt.step(arrival_times, train_sizes, where="post")
+    plt.xlabel("Время, ч")
+    plt.ylabel("Суммарное число вагонов")
+    plt.title("Кумулятивный поток вагонов за 100 часов")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 
 if __name__ == "__main__":
     model()

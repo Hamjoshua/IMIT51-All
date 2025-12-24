@@ -30,14 +30,17 @@ def simulate_one() -> float:
     
     # 2. Шлифовка
     cost += POLISH_COST
-    polish_mistake_p = random.random()
-    
+    polish_mistake_up_p = random.random()
+    polish_mistake_down_p = random.random()
+
     # сразу две сломалось -> произведение вероятностей
-    if(polish_mistake_p < POLISH_DOWN_MISTAKE_P * POLISH_UP_MISTAKE_P):
+    if(polish_mistake_up_p * polish_mistake_down_p 
+       < POLISH_DOWN_MISTAKE_P * POLISH_UP_MISTAKE_P):
         return -cost
     
     # возникновение одного или другого -> сумма вероятностей
-    elif(polish_mistake_p < POLISH_UP_MISTAKE_P + POLISH_DOWN_MISTAKE_P):
+    elif((polish_mistake_up_p < POLISH_UP_MISTAKE_P) or 
+         (polish_mistake_down_p < POLISH_DOWN_MISTAKE_P)):
         cost += POLISH_FIX_COST
 
     return DETAIL_PROFIT - cost
