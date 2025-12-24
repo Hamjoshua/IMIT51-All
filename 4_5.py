@@ -25,22 +25,20 @@ def simulate_one() -> float:
 
     if work_p < BROKEN_WORK_P:
         return -cost
-    elif work_p < FAT_WORK_P:
+    elif work_p < FAT_WORK_P + BROKEN_WORK_P:
         cost += FIX_FAT_COST
     
     # 2. Шлифовка
     cost += POLISH_COST
-    polish_mistake_up_p = random.random()
-    polish_mistake_down_p = random.random()
+    polish_mistake_up_p = random.random() < POLISH_UP_MISTAKE_P
+    polish_mistake_down_p = random.random() < POLISH_DOWN_MISTAKE_P
 
     # сразу две сломалось -> произведение вероятностей
-    if(polish_mistake_up_p * polish_mistake_down_p 
-       < POLISH_DOWN_MISTAKE_P * POLISH_UP_MISTAKE_P):
+    if(polish_mistake_up_p and polish_mistake_down_p):
         return -cost
     
     # возникновение одного или другого -> сумма вероятностей
-    elif((polish_mistake_up_p < POLISH_UP_MISTAKE_P) or 
-         (polish_mistake_down_p < POLISH_DOWN_MISTAKE_P)):
+    if(polish_mistake_down_p ^ polish_mistake_up_p):
         cost += POLISH_FIX_COST
 
     return DETAIL_PROFIT - cost
@@ -58,7 +56,7 @@ def check_for(n_runs):
         total_profit += profit
 
     good_prob = good_count / n_runs
-    avg_profit = total_profit / n_runs
+    avg_profit = (total_profit / n_runs)
     print(f"--- Результаты за {n_runs} испытаний ---")
     print(f"Вероятность годной детали: {good_prob:.4f}")
     print(f"Средняя прибыль на деталь: {avg_profit:.4f}")
